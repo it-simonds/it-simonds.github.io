@@ -38,12 +38,14 @@ if ($go -notmatch '^(y|yes)$') { Write-Host 'Cancelled.'; return }
 # 3. Prerequisites
 Write-Host 'Installing prerequisites...'
 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
+Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+Install-Module -Name Microsoft.Graph.Authentication -Scope AllUsers -Force -AllowClobber
 Install-Script -Name Get-WindowsAutopilotInfo -Force
 $env:Path += ";$env:ProgramFiles\WindowsPowerShell\Scripts"
 
 # 4. Sign in with device code (approve from another PC or phone), then upload
 Write-Host 'Sign in: open the URL shown below on another device and enter the code.' -ForegroundColor Yellow
-Import-Module Microsoft.Graph.Authentication -ErrorAction SilentlyContinue
+Import-Module Microsoft.Graph.Authentication -Force
 Connect-MgGraph -UseDeviceCode -NoWelcome -Scopes 'DeviceManagementServiceConfig.ReadWrite.All'
 
 $params = @{ Online = $true }
